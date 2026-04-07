@@ -8,5 +8,8 @@ const PORT = process.env.PORT || 4001;
 // This conditional is here for testing purposes:
 if (require.main === module) { 
   // Add your code to start the server listening at PORT below:
+  app.listen(PORT, () => {
+    console.log(`Server is listening on port ${PORT}`);
+  })
 
 }
