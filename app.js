@@ -13,6 +13,7 @@ app.use(bodyParser.json());
 
 // Mount your existing apiRouter below at the '/api' path.
 const apiRouter = require('./server/api');
+console.log('App is mounting API router');
 app.use('/api', apiRouter);
 
 

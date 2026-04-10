@@ -1,0 +1,28 @@
+### GET all minions (Check your current list)
+GET http://localhost:4001/api/minions
+
+###
+
+### POST a new minion 
+POST http://localhost:4001/api/minions
+Content-Type: application/json
+
+{
+  "name": "Kevin",
+  "title": "Lead Scientist",
+  "salary": 50000
+}
+
+###
+
+### PUT (Update) an existing minion
+# IMPORTANT: Change the '1' to an ID that actually exists in your list
+PUT http://localhost:4001/api/minions/1
+Content-Type: application/json
+
+{
+  "id": "1",
+  "name": "Stuart",
+  "title": "Lead Guitarist",
+  "salary": 55000
+}
