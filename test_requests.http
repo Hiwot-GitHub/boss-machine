@@ -16,7 +16,6 @@ Content-Type: application/json
 ###
 
 ### PUT (Update) an existing minion
-# IMPORTANT: Change the '1' to an ID that actually exists in your list
 PUT http://localhost:4001/api/minions/1
 Content-Type: application/json
 
@@ -32,6 +31,9 @@ Content-Type: application/json
 GET http://localhost:4001/api/ideas
 
 ###
+
+### GET a single idea by ID
+GET http://localhost:4001/api/ideas/5
 
 ### POST a new idea
 # This should succeed if your Million Dollar Middleware is working
@@ -79,4 +81,16 @@ Content-Type: application/json
 
 ### DELETE an idea
 # Change '1' to a real ID
-DELETE http://localhost:4001/api/ideas/1
+DELETE http://localhost:4001/api/ideas/11
+
+##################################################################################
+### GET all meetings
+GET http://localhost:4001/api/meetings
+
+### POST (Create) a new meeting
+POST http://localhost:4001/api/meetings
+
+###
+
+### DELETE all meetings
+DELETE http://localhost:4001/api/meetings
