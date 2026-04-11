@@ -26,3 +26,57 @@ Content-Type: application/json
   "title": "Lead Guitarist",
   "salary": 55000
 }
+
+#########################################################################################
+### GET all ideas
+GET http://localhost:4001/api/ideas
+
+###
+
+### POST a new idea
+# This should succeed if your Million Dollar Middleware is working
+POST http://localhost:4001/api/ideas
+Content-Type: application/json
+
+{
+  "name": "New Tech Startup",
+  "description": "An AI-powered tutor for students in Sydney.",
+  "numWeeks": 100,
+  "weeklyRevenue": 20000
+}
+
+###
+
+### POST a "Bad" idea
+# This should fail (400) if your Million Dollar Middleware is working 
+# (10 * 10 is less than 1,000,000)
+POST http://localhost:4001/api/ideas
+Content-Type: application/json
+
+{
+  "name": "Abella",
+  "description": "How cool it is that you mentioned Parramatta.",
+  "numWeeks": 11,
+  "weeklyRevenue": 60
+}
+
+###
+
+### PUT (Update) an existing idea
+# Remember to change '1' to a real ID from your GET request
+PUT http://localhost:4001/api/ideas/11
+Content-Type: application/json
+
+{
+  "id": "11",
+  "name": "Spotify",
+  "description": "Streaming music over the internet. ",
+  "numWeeks": 125,
+  "weeklyRevenue": 15000
+}
+
+###
+
+### DELETE an idea
+# Change '1' to a real ID
+DELETE http://localhost:4001/api/ideas/1
