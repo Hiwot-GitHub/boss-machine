@@ -17,8 +17,26 @@ const {  createMeeting,
         err.status = 400;
         next(err);
     }
-
 }
+
+  const validateWorkRequest = (req, res, next) => {
+    const { title, description, hours, minionId } = req.body;
+
+    
+    const hasStrings = title && description && minionId;
+    const hasNumbers = typeof hours === 'number' ;
+
+    const isPut = req.method === 'PUT';
+    const hasId = isPut ? !!req.body.id : true;
+
+    if (hasStrings && hasNumbers && hasId) {
+        next();
+    } else {
+        const err = new Error('Bad Request: Missing or invalid fields');
+        err.status = 400;
+        next(err);
+    }
+  }
 
 
   minionsRouter.get('/', (req, res, next) => {
@@ -87,6 +105,66 @@ const {  createMeeting,
         err.status = 404;
         next(err);
     }
+  });
+
+  minionsRouter.get('/:minionId/work', (req, res, next) => {
+    const allworks = getAllFromDatabase('work');
+    const works = allworks.filter(work => {
+        return work.minionId === req.minionId ;
+    });
+    
+    if(works){
+        res.status(200).send(works);
+    } else{
+        const err = new Error('Not Found');
+        err.status = 400;
+        next(err);
+    }
+  });
+
+  minionsRouter.use('/:minionId/work', (req, res, next) => {
+     req.body.minionId = req.minionId;
+     next();
+  })
+
+  minionsRouter.post('/:minionId/work', validateWorkRequest, (req, res, next) => {
+    const newWork = addToDatabase('work', req.body);
+    if (newWork){
+        res.status(201).send(newWork);
+    } else {
+         const err = new Error('Enternal Error');
+         err.status = 500;
+         next(err);
+    }
+  });
+
+  minionsRouter.use('/:minionId/work/:workId', (req, res, next) => {
+    const workId = req.params.workId;
+    req.workId = workId;
+    next();
+  });
+
+  minionsRouter.put('/:minionId/work/:workId',validateWorkRequest, (req, res, next) => {
+    req.body.id = req.workId;
+    const updatedWork = updateInstanceInDatabase('work', req.body);
+     if (updatedWork){
+        res.status(200).send(updatedWork);
+    } else {
+          const err = new Error('Resource not found');
+          err.status = 404;
+          next(err);
+    }
+  });
+
+  minionsRouter.delete('/:minionId/work/:workId', (req, res, next) => {
+    const deletedWork = deleteFromDatabasebyId('work', req.workId);
+    if (deletedWork){
+        res.status(204).send();
+    } else {
+          const err = new Error('Resource not found');
+          err.status = 404;
+          next(err);
+    }
   })
 
 
@@ -96,7 +174,7 @@ const errorHandling = (err, req, res, next) => {
         res.status(err.status).send({ error: err.message });
     } else{
         res.status(500).send();
-    }
+    } 
 
 }
 

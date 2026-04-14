@@ -94,3 +94,41 @@ POST http://localhost:4001/api/meetings
 
 ### DELETE all meetings
 DELETE http://localhost:4001/api/meetings
+
+####################################################################
+### Get all work for a specific minion
+# Replace :minionId with a known ID from your database
+GET http://localhost:4001/api/minions/:minionId/work
+
+###
+
+### Create new work for a minion
+POST http://localhost:4001/api/minions/1/work
+Content-Type: application/json
+
+{
+  "title": "Clean the Lab",
+  "description": "Scrub the floors until they shine.",
+  "hours": 5,
+  "minionId": ":minionId"
+}
+
+###
+
+### Update existing work for a minion
+# Note: The :workId must exist for the specified :minionId
+PUT http://localhost:4001/api/minions/:minionId/work/:workId
+Content-Type: application/json
+
+{
+  "id": ":workId",
+  "title": "Deep Clean the Lab",
+  "description": "Scrub the floors AND the ceiling.",
+  "hours": 8,
+  "minionId": ":minionId"
+}
+
+###
+
+### Delete work from a minion's backlog
+DELETE http://localhost:4001/api/minions/:minionId/work/:workId
