@@ -11,6 +11,18 @@ const {
 } = require('./db');
 
 
+  ideasRouter.param('ideaId', (req, res, next, id) => {
+  const idea = getFromDatabaseById('ideas', id);
+  if (idea) {
+    req.idea = idea; 
+    req.ideaId = id;
+    next();
+  } else {
+    res.status(404).send('Minion not found');
+  }
+});
+
+
 const validateIdeaRequest = (req, res, next) => {
     const { name, description, weeklyRevenue, numWeeks } = req.body;
 
@@ -40,7 +52,7 @@ ideasRouter.get('/', (req, res, next) => {
     }
 });
 
-ideasRouter.post('/', validateIdeaRequest, checkMillionDollarIdea, (req, res, next) => {
+ideasRouter.post('/', checkMillionDollarIdea, (req, res, next) => {
     const newIdea = addToDatabase('ideas', req.body);
     if (newIdea){
         res.status(201).send(newIdea);
@@ -51,24 +63,12 @@ ideasRouter.post('/', validateIdeaRequest, checkMillionDollarIdea, (req, res, ne
     }
 });
 
-ideasRouter.use('/:ideaId', (req, res, next) => {
-    const ideaId = req.params.ideaId;
-        req.ideaId = ideaId;
-        next();
-});
 
 ideasRouter.get('/:ideaId', (req, res, next) => {
-     const idea = getFromDatabaseById('ideas', req.ideaId);
-     if (idea){
-        res.status(200).send(idea);
-     } else {
-        const err = new Error('Not Found');
-        err.status = 404;
-        next(err);
-     }
+        res.status(200).send(req.idea);  
 });
 
-ideasRouter.put('/:ideaId', validateIdeaRequest, checkMillionDollarIdea, (req, res, next) => {
+ideasRouter.put('/:ideaId', (req, res, next) => {
     const updatedIdea = updateInstanceInDatabase('ideas', req.body);
     if (updatedIdea) {
         res.status(200).send(updatedIdea);

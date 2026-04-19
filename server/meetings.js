@@ -4,7 +4,8 @@ const meetingsRouter = express.Router();
 const {
     createMeeting, 
     getAllFromDatabase,
-    deleteAllFromDatabase } = require('./db');
+    deleteAllFromDatabase, 
+    addToDatabase} = require('./db');
 
 meetingsRouter.get('/', (req, res, next) => {
     const meetings = getAllFromDatabase('meetings');
@@ -18,15 +19,10 @@ meetingsRouter.get('/', (req, res, next) => {
 });
 
 meetingsRouter.post('/', (req, res, next) => {
-    const meeting = createMeeting();
-    if (meeting){
-        res.status(201).send(meeting);
-    } else {
-          const err = new Error('Internal Server Error');
-        err.status = 500;
-        next(err);
-    }
-    
+    const newMeeting = createMeeting()
+    addToDatabase('meetings', newMeeting)
+    res.status(201).send(newMeeting);
+       
 });
 
 meetingsRouter.delete('/', (req, res, next) => {

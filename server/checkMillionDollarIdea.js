@@ -1,13 +1,11 @@
 const checkMillionDollarIdea = (req, res, next) => {
-    const idea = req.body;
-    if (idea.numWeeks * idea.weeklyRevenue >=  1000000){
-       next();
+    const { numWeeks, weeklyRevenue }= req.body;
+    const totalYield = Number(numWeeks) * Number(weeklyRevenue);
+    if (!numWeeks || !weeklyRevenue || isNaN(totalYield) || totalYield < 1000000){
+       res.status(400).send();
     } else {
-        const err = new Error('Bad Request');
-        err.status = 400;
-        next(err);
+      next();
     }
 };
 
-// Leave this exports assignment so that the function can be used elsewhere
 module.exports = checkMillionDollarIdea;

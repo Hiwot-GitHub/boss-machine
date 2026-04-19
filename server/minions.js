@@ -1,46 +1,25 @@
 const express = require('express');
 const minionsRouter = express.Router();
-const {  createMeeting,
+const {
   getAllFromDatabase,
   getFromDatabaseById,
   addToDatabase,
   updateInstanceInDatabase,
   deleteFromDatabasebyId,
-  deleteAllFromDatabase } = require('./db');
+   } = require('./db');
 
-  const validatingRequest = (req, res, next) => {
-    const minion = req.body;
-    if (minion.name && minion.title && minion.salary && typeof minion.salary === 'number'){
-        next();
-    } else{
-        const err = new Error('Bad Request');
-        err.status = 400;
-        next(err);
-    }
-}
-
-  const validateWorkRequest = (req, res, next) => {
-    const { title, description, hours, minionId } = req.body;
-
-    
-    const hasStrings = title && description && minionId;
-    const hasNumbers = typeof hours === 'number' ;
-
-    const isPut = req.method === 'PUT';
-    const hasId = isPut ? !!req.body.id : true;
-
-    if (hasStrings && hasNumbers && hasId) {
-        next();
-    } else {
-        const err = new Error('Bad Request: Missing or invalid fields');
-        err.status = 400;
-        next(err);
-    }
+  minionsRouter.param('minionId', (req, res, next, id) => {
+  const minion = getFromDatabaseById('minions', id);
+  if (minion) {
+    req.minion = minion; 
+    req.minionId = id;
+    next();
+  } else {
+    res.status(404).send('Minion not found');
   }
-
+});
 
   minionsRouter.get('/', (req, res, next) => {
-    console.log('Fetching all minions...');
     const minions = getAllFromDatabase('minions');
     if (minions){
          res.status(200).send(minions);
@@ -49,10 +28,9 @@ const {  createMeeting,
         err.status = 404;
         next(err);
     }
-   
   });
 
-  minionsRouter.post('/', validatingRequest, (req, res, next) => {
+  minionsRouter.post('/', (req, res, next) => {
     const newMinion = addToDatabase('minions', req.body);
     if (newMinion){
         res.status(201).send(newMinion);
@@ -63,14 +41,6 @@ const {  createMeeting,
     }
     
   });
-
-
-    minionsRouter.use('/:minionId', (req, res, next) => {
-     const minionId = req.params.minionId;
-     req.minionId = minionId;
-     next();
-  });
-
 
   minionsRouter.get('/:minionId', (req, res, next) => {
     const minion = getFromDatabaseById('minions', req.minionId);
@@ -83,8 +53,8 @@ const {  createMeeting,
     }
   });
 
-
-  minionsRouter.put('/:minionId', validatingRequest, (req, res, next) => {
+  minionsRouter.put('/:minionId', (req, res, next) => {
+    req.body.id = req.minionId;
     const updatedMinion = updateInstanceInDatabase('minions', req.body);
     if (updatedMinion){
         res.status(200).send(updatedMinion);
@@ -127,7 +97,7 @@ const {  createMeeting,
      next();
   })
 
-  minionsRouter.post('/:minionId/work', validateWorkRequest, (req, res, next) => {
+  minionsRouter.post('/:minionId/work',  (req, res, next) => {
     const newWork = addToDatabase('work', req.body);
     if (newWork){
         res.status(201).send(newWork);
@@ -144,16 +114,22 @@ const {  createMeeting,
     next();
   });
 
-  minionsRouter.put('/:minionId/work/:workId',validateWorkRequest, (req, res, next) => {
-    req.body.id = req.workId;
-    const updatedWork = updateInstanceInDatabase('work', req.body);
-     if (updatedWork){
-        res.status(200).send(updatedWork);
+  minionsRouter.put('/:minionId/work/:workId', (req, res, next) => {
+    const workToUpdate = getFromDatabaseById('work', req.workId);
+    if (workToUpdate  && workToUpdate.minionId !== req.minionId){
+      res.status(400).send('Work does not belong to this minion.');
     } else {
+        req.body.id = req.workId;
+        req.body.minionId = req.minionId;
+        const updatedWork = updateInstanceInDatabase('work', req.body);
+        if (updatedWork){
+        res.status(200).send(updatedWork);
+        } else {
           const err = new Error('Resource not found');
           err.status = 404;
           next(err);
-    }
+        }
+    }  
   });
 
   minionsRouter.delete('/:minionId/work/:workId', (req, res, next) => {
@@ -166,8 +142,6 @@ const {  createMeeting,
           next(err);
     }
   })
-
-
 
 const errorHandling = (err, req, res, next) => {
     if (err.status){
